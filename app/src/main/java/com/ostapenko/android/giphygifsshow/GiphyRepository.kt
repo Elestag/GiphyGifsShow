@@ -1,0 +1,63 @@
+package com.ostapenko.android.giphygifsshow
+
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.google.gson.GsonBuilder
+import com.ostapenko.android.giphygifsshow.api.GifResponse
+import com.ostapenko.android.giphygifsshow.api.GiphyApi
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+
+private const val TAG = "GiphyRepository"
+
+class GiphyRepository {
+    private val giphyApi: GiphyApi
+
+    init {
+        val gson = GsonBuilder()
+            .registerTypeAdapter(GifResponse::class.java, GiphyDeserializer())
+            .create()
+
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl("https://api.giphy.com/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+
+        giphyApi = retrofit.create(GiphyApi::class.java)
+    }
+
+    fun fetchContents(): LiveData<List<GifsItem>> {
+        val responseLiveData: MutableLiveData<List<GifsItem>> = MutableLiveData()
+
+        val giphyRequest: Call<GifResponse> = giphyApi.fetchContents()
+
+        giphyRequest.enqueue(object : Callback<GifResponse> {
+            override fun onResponse(call: Call<GifResponse>, response: Response<GifResponse>) {
+                Log.d(TAG, "Response received: $response")
+
+
+                val gifResponse: GifResponse? = response.body()
+                gifResponse?.gifItems = response.body()?.gifItems!!
+
+                var gifItems: List<GifsItem> = gifResponse?.gifItems ?: mutableListOf()
+                Log.d(TAG, "gifItems : $gifItems")
+                gifItems = gifItems.filterNot {
+                    it.url.isBlank()
+                }
+                responseLiveData.value = gifItems
+            }
+
+            override fun onFailure(call: Call<GifResponse>, t: Throwable) {
+                Log.e(TAG, "Failed to fetch gifs")
+            }
+
+        })
+
+        return responseLiveData
+    }
+}
