@@ -38,14 +38,12 @@ class GiphyRepository {
 
         giphyRequest.enqueue(object : Callback<GifResponse> {
             override fun onResponse(call: Call<GifResponse>, response: Response<GifResponse>) {
-                Log.d(TAG, "Response received: $response")
-
+                 Log.d(TAG, "Response received: $response")
 
                 val gifResponse: GifResponse? = response.body()
                 gifResponse?.gifItems = response.body()?.gifItems!!
-
                 var gifItems: List<GifsItem> = gifResponse?.gifItems ?: mutableListOf()
-                Log.d(TAG, "gifItems : $gifItems")
+                // Log.d(TAG, "gifItems : $gifItems")
                 gifItems = gifItems.filterNot {
                     it.url.isBlank()
                 }

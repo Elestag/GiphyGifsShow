@@ -3,8 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android/TestTasks/GiphyGifsShow/app/src/main/res/layout/activity_main.xml" value="0.28020833333333334" />
         <entry key="..\:/Android/TestTasks/GiphyGifsShow/app/src/main/res/layout/first_screen_fragment.xml" value="0.388671875" />
         <entry key="..\:/Android/TestTasks/GiphyGifsShow/app/src/main/res/layout/list_item_giphy.xml" value="0.5182291666666666" />
+        <entry key="..\:/Android/TestTasks/GiphyGifsShow/app/src/main/res/layout/second_screen_fragment.xml" value="0.389453125" />
       </map>
     </option>
   </component>
