@@ -2,6 +2,7 @@ package com.ostapenko.android.giphygifsshow.api
 
 import com.ostapenko.android.giphygifsshow.GifsItem
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 
 interface GiphyApi {
@@ -13,5 +14,5 @@ interface GiphyApi {
             "&offset=0" +
             "&rating=g" +
             "&lang=en")
-    fun fetchContents(): Call<GifResponse>
+   suspend fun fetchContents(): Response<GifResponse>
 }

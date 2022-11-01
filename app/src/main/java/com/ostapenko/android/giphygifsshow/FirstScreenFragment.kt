@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,10 +40,12 @@ class FirstScreenFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        giphyViewModel.gifItemLiveData.observe(viewLifecycleOwner, Observer { gifItems ->
+
+        giphyViewModel.gifItemLiveData.observe(viewLifecycleOwner) { gifItems ->
+
             giphyAdapter = GiphyAdapter(gifItems)
             recyclerView.adapter = giphyAdapter
-        })
+        }
 
     }
 

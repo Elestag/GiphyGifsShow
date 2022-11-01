@@ -1,14 +1,12 @@
 package com.ostapenko.android.giphygifsshow
 
-import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.GsonBuilder
 import com.ostapenko.android.giphygifsshow.api.GifResponse
 import com.ostapenko.android.giphygifsshow.api.GiphyApi
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -31,31 +29,25 @@ class GiphyRepository {
         giphyApi = retrofit.create(GiphyApi::class.java)
     }
 
-    fun fetchContents(): LiveData<List<GifsItem>> {
+    suspend fun fetchContents(): MutableLiveData<List<GifsItem>> {
         val responseLiveData: MutableLiveData<List<GifsItem>> = MutableLiveData()
 
-        val giphyRequest: Call<GifResponse> = giphyApi.fetchContents()
+        val liveData = CoroutineScope(Dispatchers.IO).async {
+            val response = giphyApi.fetchContents()
 
-        giphyRequest.enqueue(object : Callback<GifResponse> {
-            override fun onResponse(call: Call<GifResponse>, response: Response<GifResponse>) {
-                 Log.d(TAG, "Response received: $response")
-
-                val gifResponse: GifResponse? = response.body()
-                gifResponse?.gifItems = response.body()?.gifItems!!
-                var gifItems: List<GifsItem> = gifResponse?.gifItems ?: mutableListOf()
-                // Log.d(TAG, "gifItems : $gifItems")
-                gifItems = gifItems.filterNot {
-                    it.url.isBlank()
-                }
-                responseLiveData.value = gifItems
+            // Log.d(TAG, "Response received: $response")
+            val gifResponse: GifResponse? = response.body()
+            gifResponse?.gifItems = response.body()?.gifItems!!
+            var gifItems: List<GifsItem> = gifResponse?.gifItems ?: mutableListOf()
+            // Log.d(TAG, "gifItems : $gifItems")
+            gifItems = gifItems.filterNot {
+                it.url.isBlank()
             }
+            responseLiveData.postValue(gifItems)
+        }
 
-            override fun onFailure(call: Call<GifResponse>, t: Throwable) {
-                Log.e(TAG, "Failed to fetch gifs")
-            }
-
-        })
-
+        liveData.await()
+        // Log.d(TAG, "ResponseLiveData : ${responseLiveData.value}")
         return responseLiveData
     }
 }
